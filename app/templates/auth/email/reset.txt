@@ -1,0 +1,10 @@
+Hi,
+	This is a mail that you are trying to reset your password:
+
+	If you really want to do it,click the link below:
+
+	{{url_for('auth.reset',token = token, _external = True)}}
+
+	Thank you
+
+Note: Do not reply

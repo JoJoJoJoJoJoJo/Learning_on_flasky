@@ -1,0 +1,11 @@
+Hi {{user.name}},
+	<br>Welcome to my site</br>
+
+	<p>To confirm your account plz click the following link:</p>
+
+	<a href = {{url_for('auth.confirm',token = token, _external = True)}}>Click here</a>
+
+	<p>Thank you</p>
+<p>
+Note: Do not reply
+</p>

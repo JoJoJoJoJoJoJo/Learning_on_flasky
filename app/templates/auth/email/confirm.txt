@@ -1,0 +1,10 @@
+Hi {{user.name}},
+	Welcome to my site
+
+	To confirm your account plz click the following link:
+
+	{{url_for('auth.confirm',token = token, _external = True)}}
+
+	Thank you
+
+Note: Do not reply

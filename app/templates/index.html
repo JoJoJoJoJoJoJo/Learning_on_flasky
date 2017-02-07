@@ -5,6 +5,12 @@
 {% block page_content %}
 <div class = 'page-header'>
 	<h1>Hello World!</h1>
+	Welcome,
+	{% if current_user.is_authenticated %}
+		{{ current_user.username }}
+	{% else %}
+		Visitor
+	{% endif %}!
 	<hr><p>登录时间：{{moment(current_time).format('LLL') }}.</p>
 	<p>已在线：{{moment(current_time).fromNow(refresh=True)}} </p></hr>
 </div>
