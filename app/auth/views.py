@@ -1,4 +1,4 @@
-#-*-coding:GBK-*-
+#-*-coding:utf-8-*-
 from flask import render_template,redirect,request,url_for,flash
 from . import auth
 from flask_login import login_required,login_user,logout_user,current_user
@@ -54,11 +54,12 @@ def confirm(token):#send confirm mail
 
 @auth.before_app_request
 def before_request():#unconfirmed login
-	if current_user.is_authenticated \
-			and not current_user.confirmed \
+	if current_user.is_authenticated:
+		current_user.ping()
+		if not current_user.confirmed \
 			and request.endpoint[:5] != 'auth.' \
 			and request.endpoint != 'static':
-		return redirect(url_for('auth.unconfirmed'))
+			return redirect(url_for('auth.unconfirmed'))
 	
 @auth.route('/unconfirmed')
 def unconfirmed():
@@ -106,7 +107,10 @@ def reset_password():
 	form = ResetPasswordForm()
 	if form.validate_on_submit():
 		if User.query.filter_by(email = form.email.data):
-			user=db.session.query(User).filter_by(email=form.email.data).first()# 大坑，可以更改别人的密码
+			user=db.session.query(User).filter_by(email=form.email.data).first()
+			# 大坑，可以更改别人的密码
+			# 此处应该在User里加一个方法
+			# 调用该方法来实现
 			user.password = form.new_password.data
 			db.session.add(user)
 			db.session.commit()
@@ -130,3 +134,4 @@ def forget():
 			flash('The mail has not been registered')
 			return redirect(url_for('auth.register'))
 	return render_template('auth/forget.html',form = form)
+	

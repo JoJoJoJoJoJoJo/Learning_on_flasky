@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% import '_macros.html' as macro %}
+
+{%block title %}Flasky - {{title}}{{user.username}} {% endblock %}
+
+{% block page_content %}
+<div class = 'page-header'>
+	<h1>{{title}}{{user.username}}</h1>
+</div>
+<table class = 'table table-hover followers'>
+	<thead><tr><th>User</th><th>Since</th></tr></thead>
+	{% for follower in follows %}
+	<tr>
+		<td>
+			<a href = "{{url_for('.user',username=follower.user.username)}}">
+				<img class = 'img-rounded',src = '{{follower.user.gravatar(size=32)}}'>
+				{{ follower.user.username }}
+			</a>
+		</td>
+		<td>
+			{{ moment(follower.timestamp).format('L') }}
+		</td>
+	</tr>
+	{% endfor %}
+</table>
+<div class = 'pagination'>
+	{{macro.pagination_widget(pagination,endpoint,username=user.username)}}
+</div>
+{% endblock%}

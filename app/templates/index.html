@@ -1,4 +1,11 @@
 {% extends 'base.html' %}
+{% import 'bootstrap/wtf.html' as wtf %}
+{% import '_macros.html' as macros %}
+
+{% block scripts %}
+{{ super() }}
+{{ pagedown.include_pagedown() }}
+{% endblock %}
 
 {% block title %}Index{% endblock %}
 
@@ -11,7 +18,29 @@
 	{% else %}
 		Visitor
 	{% endif %}!
-	<hr><p>登录时间：{{moment(current_time).format('LLL') }}.</p>
-	<p>已在线：{{moment(current_time).fromNow(refresh=True)}} </p></hr>
 </div>
+<div>
+	{% if current_user.can(Permission.WRITE_ARTICLES) %}
+	{{ wtf.quick_form(form) }}
+	{% endif %}
+</div>
+<div class = 'post-tabs'>
+	<ul class = 'nav nav-tabs'>
+		<li {% if not show_followed %} class = 'active'{% endif %}>
+			<a href = "{{url_for('.show_all')}}">所有</a>
+		</li>
+		{% if current_user.is_authenticated %}
+		<li {% if show_followed %} class = 'active'{% endif %}>
+			<a href = "{{url_for('.show_followed')}}">已关注</a>
+		</li>
+		{% endif %}
+	</ul>
+	{% include '_posts.html' %}
+</div>
+{% if pagination %}
+<div class='pagination'>
+{{ macros.pagination_widget(pagination,'.index')}}
+</div>
+{% endif %}
+
 {% endblock %}

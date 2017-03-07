@@ -1,4 +1,4 @@
-Hi {{user.name}},
+Hi {{user.username}},
 	Welcome to my site
 
 	To confirm your account plz click the following link:
