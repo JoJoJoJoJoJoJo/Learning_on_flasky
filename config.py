@@ -15,6 +15,11 @@ class Config:
 	FLASKY_DB_QUERY_TIMEOUT = 0.5
 	FLASKY_SLOW_DB_QUERY_TIME=0.5
 	SSL_DISABLE = True
+	MAIL_SERVER = 'smtp.163.com'
+	MAIL_PORT = 25
+	MAIL_USE_TLS = True
+	MAIL_USERNAME = os.environ.get('MAIL_USERNAME') or 'whr428@163.com'
+	MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
 	
 	@staticmethod
 	def init_app(app):
@@ -22,11 +27,6 @@ class Config:
 
 class DevelopmentConfig(Config):
 	DEBUG = True
-	MAIL_SERVER = 'smtp.163.com'
-	MAIL_PORT = 25
-	MAIL_USE_TLS = True
-	MAIL_USERNAME = os.environ.get('MAIL_USERNAME') or 'whr428@163.com'
-	MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD') or 'whr072547227'
 	SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or \
 		'sqlite:///'+os.path.join(basedir,'data-dev.sqlite')
 		
