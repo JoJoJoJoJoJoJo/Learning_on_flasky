@@ -72,7 +72,7 @@ class HerokuConfig(ProductionConfig):
 		#输出到stderr
 		import logging
 		from logging import StreamHandler
-		file_handler = Streamhandler()
+		file_handler = StreamHandler()
 		file_handler.setLevel(logging.WARNING)
 		app.logger.addHandler(file_handler)
 		
