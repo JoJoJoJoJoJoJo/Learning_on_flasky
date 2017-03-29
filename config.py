@@ -20,7 +20,7 @@ class Config:
 	MAIL_USE_TLS = True
 	MAIL_USERNAME = os.environ.get('MAIL_USERNAME') or 'whr428@163.com'
 	MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
-	
+	UPLOADED_PHOTOS_DEST = os.path.join(basedir,'app','static','photos')
 	@staticmethod
 	def init_app(app):
 		pass
