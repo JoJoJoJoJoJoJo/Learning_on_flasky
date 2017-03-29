@@ -4,11 +4,13 @@ from flask import Flask,render_template,session,redirect,url_for,current_app,fla
 from flask_login import login_required,current_user
 from . import main
 from .forms import *
-from .. import db
+from .. import db,photos
 from ..models import User,Permission,Role,Post,Comment
 from .. email import send_mail
 from ..decorators import permission_required,admin_required
 from flask_sqlalchemy import get_debug_queries
+import os
+
 
 @main.route('/users',methods=['GET','POST'])
 def users():
@@ -63,6 +65,17 @@ def edit_profile():
 		current_user.name = form.name.data
 		current_user.location = form.location.data
 		current_user.about_me = form.about_me.data
+		if form.photo.has_file():
+			try:
+				os.remove((current_app.config['UPLOADED_PHOTOS_DEST']+'\\'+current_user.avatar_hash+'.jpg'))
+				os.remove((current_app.config['UPLOADED_PHOTOS_DEST']+'\\'+current_user.avatar_hash+'.png'))
+				os.remove((current_app.config['UPLOADED_PHOTOS_DEST']+'\\'+current_user.avatar_hash+'.bmp'))
+			except WindowsError:
+				pass
+			#有点麻烦，其实应该把所有文件统一保存成同一格式
+			#在模板中定义文件大小
+			filename = photos.save(form.photo.data,name=(current_user.avatar_hash+'.'))
+			current_user.photo_url = photos.url(filename)
 		db.session.add(current_user)
 		flash('Your Profile has been updated')
 		return redirect(url_for('.user',username=current_user.username))
@@ -85,6 +98,15 @@ def edit_profile_admin(id):
 		user.name = form.name.data
 		user.location=form.location.data
 		user.about_me = form.about_me.data
+		if form.photo.has_file():
+			try:
+				os.remove(current_app.config['UPLOADED_PHOTOS_DEST']+'\\'+user.avatar_hash+'.jpg')
+				os.remove(current_app.config['UPLOADED_PHOTOS_DEST']+'\\'+user.avatar_hash+'.png')
+				os.remove(current_app.config['UPLOADED_PHOTOS_DEST']+'\\'+user.avatar_hash+'.bmp')
+			except WindowsError:
+				pass
+			filename = photos.save(form.photo.data,name=(user.avatar_hash+'.'))
+			user.photo_url = photos.url(filename)
 		db.session.add(user)
 		flash('The profile has been updated')
 		return redirect(url_for('.user',username=user.username))
@@ -111,8 +133,8 @@ def post(id):
 	form = CommentForm()
 	if form.validate_on_submit():
 		comment = Comment(body=form.body.data,
-						post=post,
-						author=current_user._get_current_object())
+			post=post,
+			author=current_user._get_current_object())
 		db.session.add(comment)
 		flash(u'评论成功')
 		return redirect(url_for('.post',id=post.id,page=-1))
@@ -175,14 +197,14 @@ def followers(username):
 		return redirect(url_for('.index'))
 	page = request.args.get('page',1,type=int)
 	pagination = user.followers.paginate(page,
-										per_page=current_app.config['FLASKY_FOLLOWERS_PER_PAGE'],
-										error_out=False)
+		per_page=current_app.config['FLASKY_FOLLOWERS_PER_PAGE'],
+		error_out=False)
 	follows = [{'user':item.follower,'timestamp':item.timestamp} for item in pagination.items]
 	return render_template('followers.html',
-							user=user,title=u'关注',
-							endpoint='.followers',
-							pagination=pagination,
-							follows=follows)
+		user=user,title=u'关注',
+		endpoint='.followers',
+		pagination=pagination,
+		follows=follows)
 
 @main.route('/followed_by/<username>')
 def followed_by(username):
@@ -194,11 +216,11 @@ def followed_by(username):
 	pagination = user.followed.paginate(page,per_page=20,error_out=False)
 	followed = [{'user':item.followed,'timestamp':item.timestamp} for item in pagination.items]
 	return render_template('followers.html',
-							user=user,
-							endpoint='.followed_by',
-							title=u'关注他的',
-							pagination=pagination,
-							follows=followed)
+		user=user,
+		endpoint='.followed_by',
+		title=u'关注他的',
+		pagination=pagination,
+		follows=followed)
 							
 @main.route('/all')
 @login_required
@@ -258,3 +280,31 @@ def after_request(response):
 			current_app.logger.waring('Slow query: %s\nParamaters: %s\nDuration: %fs\nContext: %s\n' %(	
 				query.statement,query.parameters,query.duration,query.context))
 	return response
+	
+@main.route('/admin',methods=['GET','POST'])
+@login_required
+@permission_required(Permission.ADMINSTER)
+def admin():
+	form = UserQueryForm()
+	user = User.query
+	if form.validate_on_submit():
+		if form.email.data and form.username.data:
+			if user.filter_by(email=form.email.data).first().username != form.username.data:
+				flash(u'用户名与邮箱不匹配，按照邮箱查询')
+		elif form.username.data:
+			q='%'+form.username.data+'%'
+			user = User.query.filter(User.username.ilike(q)).order_by(User.role_id)
+		else:
+			user = User.query.order_by(User.role_id)
+	page = request.args.get('page',1,type=int)
+	pagination = user.paginate(page,per_page=20,error_out=False)
+	users = [{
+		'id':item.id,
+		'username':item.username,
+		'email':item.email,
+		'confirmed':item.confirmed,
+		'role':item.role,
+		'member_since':item.member_since,
+		'last_seen':item.last_seen
+		} for item in pagination.items]
+	return render_template('admin.html',form=form,users=users,pagination=pagination)
