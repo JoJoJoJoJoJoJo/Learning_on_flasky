@@ -65,6 +65,13 @@ def deploy():
 	#所有用户关注自身
 	User.add_self_to_follows()
 
+@manager.command
+def clear_a():
+	from flask_migrate import upgrade
+	from app.models import Alembic
+	Alembic.clear_alembic()
+	
+
 if os.path.exists('.env'):
 	print('Importing environment from .evn...')
 	for lin in open('.env'):

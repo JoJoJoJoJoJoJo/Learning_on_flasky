@@ -324,6 +324,20 @@ class Comment(db.Model):
 		if body is None or body == '':
 			raise ValidationError('comment does not have a body')
 		return Comment(body=body)
+
+
+class Alembic(db.Model):
+	__tablename__ = 'alembic_version'
+	version_num = db.Column(db.String(32),primary_key=True,nullable=False)
+	
+	@staticmethod
+	def clear_alembic():
+		for a in Alembic.query.all():
+			print a.version_num
+			db.session.delete(a)
+		db.session.commit()
+		print '======= data in Tble: Alembic cleared!'
+		
 		
 db.event.listen(Post.body,'set',Post.on_change_body)
 db.event.listen(Comment.body,'set',Comment.on_change_body)
