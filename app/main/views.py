@@ -70,7 +70,9 @@ def edit_profile():
 				os.remove((current_app.config['UPLOADED_PHOTOS_DEST']+'\\'+current_user.avatar_hash+'.jpg'))
 				os.remove((current_app.config['UPLOADED_PHOTOS_DEST']+'\\'+current_user.avatar_hash+'.png'))
 				os.remove((current_app.config['UPLOADED_PHOTOS_DEST']+'\\'+current_user.avatar_hash+'.bmp'))
-			except WindowsError:
+			except WindowsError:#Windows 环境
+				pass
+			except OSError:#Linux
 				pass
 			#有点麻烦，其实应该把所有文件统一保存成同一格式
 			#在模板中定义文件大小
@@ -104,6 +106,8 @@ def edit_profile_admin(id):
 				os.remove(current_app.config['UPLOADED_PHOTOS_DEST']+'\\'+user.avatar_hash+'.png')
 				os.remove(current_app.config['UPLOADED_PHOTOS_DEST']+'\\'+user.avatar_hash+'.bmp')
 			except WindowsError:
+				pass
+			except OSError:
 				pass
 			filename = photos.save(form.photo.data,name=(user.avatar_hash+'.'))
 			user.photo_url = photos.url(filename)
