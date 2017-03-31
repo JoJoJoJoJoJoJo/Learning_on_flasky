@@ -66,14 +66,20 @@ def edit_profile():
 		current_user.location = form.location.data
 		current_user.about_me = form.about_me.data
 		if form.photo.has_file():
-			try:
-				os.remove((current_app.config['UPLOADED_PHOTOS_DEST']+'\\'+current_user.avatar_hash+'.jpg'))
-				os.remove((current_app.config['UPLOADED_PHOTOS_DEST']+'\\'+current_user.avatar_hash+'.png'))
-				os.remove((current_app.config['UPLOADED_PHOTOS_DEST']+'\\'+current_user.avatar_hash+'.bmp'))
-			except WindowsError:#Windows 环境
-				pass
-			except OSError:#Linux
-				pass
+			if os.name == 'nt':
+				try:
+					os.remove((current_app.config['UPLOADED_PHOTOS_DEST']+'\\'+current_user.avatar_hash+'.jpg'))
+					os.remove((current_app.config['UPLOADED_PHOTOS_DEST']+'\\'+current_user.avatar_hash+'.png'))
+					os.remove((current_app.config['UPLOADED_PHOTOS_DEST']+'\\'+current_user.avatar_hash+'.bmp'))
+				except WindowsError:#Windows 环境
+					pass
+			if os.name == 'posix':
+				try:
+					os.remove((current_app.config['UPLOADED_PHOTOS_DEST']+'\\'+current_user.avatar_hash+'.jpg'))
+					os.remove((current_app.config['UPLOADED_PHOTOS_DEST']+'\\'+current_user.avatar_hash+'.png'))
+					os.remove((current_app.config['UPLOADED_PHOTOS_DEST']+'\\'+current_user.avatar_hash+'.bmp'))
+				except OSError:#Linux
+					pass
 			#有点麻烦，其实应该把所有文件统一保存成同一格式
 			#在模板中定义文件大小
 			filename = photos.save(form.photo.data,name=(current_user.avatar_hash+'.'))
@@ -101,14 +107,20 @@ def edit_profile_admin(id):
 		user.location=form.location.data
 		user.about_me = form.about_me.data
 		if form.photo.has_file():
-			try:
-				os.remove(current_app.config['UPLOADED_PHOTOS_DEST']+'\\'+user.avatar_hash+'.jpg')
-				os.remove(current_app.config['UPLOADED_PHOTOS_DEST']+'\\'+user.avatar_hash+'.png')
-				os.remove(current_app.config['UPLOADED_PHOTOS_DEST']+'\\'+user.avatar_hash+'.bmp')
-			except WindowsError:
-				pass
-			except OSError:
-				pass
+			if os.name == 'nt':
+				try:
+					os.remove(current_app.config['UPLOADED_PHOTOS_DEST']+'\\'+user.avatar_hash+'.jpg')
+					os.remove(current_app.config['UPLOADED_PHOTOS_DEST']+'\\'+user.avatar_hash+'.png')
+					os.remove(current_app.config['UPLOADED_PHOTOS_DEST']+'\\'+user.avatar_hash+'.bmp')
+				except WindowsError:
+					pass
+			if os.name == 'posix':
+				try:
+					os.remove(current_app.config['UPLOADED_PHOTOS_DEST']+'\\'+user.avatar_hash+'.jpg')
+					os.remove(current_app.config['UPLOADED_PHOTOS_DEST']+'\\'+user.avatar_hash+'.png')
+					os.remove(current_app.config['UPLOADED_PHOTOS_DEST']+'\\'+user.avatar_hash+'.bmp')
+				except OSError:
+					pass
 			filename = photos.save(form.photo.data,name=(user.avatar_hash+'.'))
 			user.photo_url = photos.url(filename)
 		db.session.add(user)

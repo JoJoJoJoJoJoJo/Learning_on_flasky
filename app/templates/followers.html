@@ -13,7 +13,11 @@
 	<tr>
 		<td>
 			<a href = "{{url_for('.user',username=follower.user.username)}}">
+				{% if follower.user.photo_url %}
+				<img class = 'img-rounded',src='{{follower.user.photo_url}}',style='width:32px;height:32px'>
+				{% else %}
 				<img class = 'img-rounded',src = '{{follower.user.gravatar(size=32)}}'>
+				{% endif %}
 				{{ follower.user.username }}
 			</a>
 		</td>
