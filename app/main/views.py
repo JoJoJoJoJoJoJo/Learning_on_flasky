@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 from datetime import datetime
-from flask import Flask,render_template,session,redirect,url_for,current_app,flash,request,make_response
+from flask import Flask,render_template,session,redirect,url_for,current_app,flash,request,make_response,abort
 from flask_login import login_required,current_user
 from . import main
 from .forms import *
